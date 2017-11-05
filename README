@@ -1,3 +1,28 @@
+Note added by [Andy Alt](https://github.com/andy5995) on November 5th, 2017
+
+[Wikipedia states](https://en.wikipedia.org/wiki/Ht-//Dig)
+"The last official release is Dig 3.2.0b6 announced on 16 June 2004"
+
+On Nov 3th, I found an htdig repo on GitHub that appeared to be last updated
+Jun 19, 2004.
+
+However, I noticed a [release](https://github.com/andy5995/htdig/releases)
+versioned 4.1.0 was published (unofficially) on May 17, 2007.
+
+After reading through some of the documentation, I concluded that the original
+developers of htdig had continued some work on it after the last official
+release of 3.2.0b6 in 2004.
+
+I had become interested in htdig recently because of a project I'm working
+on. I decided to mirror the abandoned htdig repo I found and perhaps
+work on it a little from time-to-time, and see if any developers more
+experienced than I would be interested in working on it as well.
+
+I made a couple branches at key points before I made any new commits.
+
+I haven't altered the documentation below.
+
+
 ht://Dig 4.0 README
 Copyright (c) 1995-2004 The ht://Dig Group
 Contributions from many, see htdoc/THANKS.html
@@ -42,7 +67,7 @@ as well. (libstdc++ has superceded the older libg++ package.)
 
 To build, first read the htdoc/install.html document
 
-Questions and discussion should be directed to the ht://Dig mailing list 
+Questions and discussion should be directed to the ht://Dig mailing list
   at htdig-general@lists.sourceforge.net
 Find subscription instructions at http://www.htdig.org/mailing.html
 Suggestions and bug reports can be made on our bug tracking database
