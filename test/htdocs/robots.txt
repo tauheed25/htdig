@@ -1,5 +1,0 @@
-User-agent: *
-Disallow: /set1/site
-
-User-agent: htdig
-Disallow:  
