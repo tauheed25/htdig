@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/andy5995/htdig.svg?branch=master)](https://travis-ci.org/andy5995/htdig)
+
 ## Note from Andy Alt
 
 2017-11-06
