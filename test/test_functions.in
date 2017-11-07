@@ -1,0 +1,130 @@
+# 
+# Initialise variables and directories to prepare to run test suite.
+# If run with argument  --start-apache  it will also start  httpd.
+# If run with argument  --stop-apache   it will stop  httpd  and exit.
+# If there is a problem before the test, "exit 77" skips the test (not fails it)
+#
+# Part of the ht://Dig package   <http://www.htdig.org/>
+# Copyright (c) 1999-2004 The ht://Dig Group
+# For copyright details, see the file COPYING in your distribution
+# or the GNU Library General Public License (LGPL) version 2 or later
+# <http://www.gnu.org/copyleft/lgpl.html>
+#
+# $Id: test_functions.in,v 1.16 2004/05/28 13:15:30 lha Exp $
+#
+
+if [ "$test_functions_action" = --stop-apache ]
+then
+    if [ -n "$httpd"  -a  -f logs/httpd.pid ]
+    then
+	kill -15 `cat logs/httpd.pid`
+	sleep 2
+        rm -f logs/httpd.pid
+    fi
+else
+
+testdir=`pwd`
+
+perl=@PERL@
+awk=@AWK@
+
+@SET_MAKE@
+
+if [ -z "$MAKE" ]
+then
+	echo "no make command found"
+	exit 77
+fi
+
+#
+# Prepare http server
+#
+(
+    cd conf
+    $MAKE user="@USER@" modules="@APACHE_MODULES@" testdir=$testdir all > /dev/null
+)
+
+httpd=@APACHE@
+
+# if apache requested, either start it or warn it was not configured.
+if [ "$test_functions_action" = --start-apache ]
+then
+
+    if [ -z "$httpd" ]
+    then
+	    prog_name=`basename $0`
+	    echo "Run configure with --with-apache=<httpd path> to run $prog_name."
+	    exit 77
+    fi
+
+    if [ ! -d logs ] 
+    then 
+      mkdir -p logs
+    else
+      if [ -f logs/httpd.pid ]
+      then
+	kill -15 `cat logs/httpd.pid`
+	sleep 2
+        rm -f logs/httpd.pid
+      fi
+    fi
+    if $httpd -f $testdir/conf/httpd.conf
+    then
+        sleep 2
+    else
+        echo
+        echo "****Could not start apache. This test may fail, but that is not ht://Dig's fault"
+        echo
+    fi
+fi
+
+#
+# Prepare htdig test environment
+#
+rm -fr var/htdig
+rm -fr var/htdig2
+mkdir -p var/htdig
+mkdir -p var/htdig2
+
+htdig=../htdig/htdig
+htsearch=../htsearch/htsearch
+htmerge=../httools/htmerge
+htpurge=../httools/htpurge
+htstat=../httools/htstat
+htdump=../httools/htdump
+htload=../httools/htload
+htfuzzy=../htfuzzy/htfuzzy
+
+#
+# Default index description used for testing
+#
+export MIFLUZ_CONFIG ; MIFLUZ_CONFIG=${srcdir}/mifluz.conf
+
+rm -f test test_weakcmpr __db*
+
+#
+# Provide a unified means for scripts to clean up.
+#
+fail() {
+    echo "$1"
+    if [ -n "$httpd"  -a  -f logs/httpd.pid ]
+    then
+      kill -15 `cat logs/httpd.pid`
+      sleep 2
+      rm -f logs/httpd.pid
+    fi
+    exit 1
+}
+
+conf=conf/htdig.conf.tmp
+set_attr ()
+{
+    if @EGREP@ "^$1" $conf > /dev/null ; then
+	@MV@ $conf tmp_conf
+	@SED@ "s@^$1.*@$1: $2@" < tmp_conf > $conf
+    else
+	echo "$1: $2" >> $conf
+    fi
+}
+
+fi	# $1 != --stop-apache

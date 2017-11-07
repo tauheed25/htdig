@@ -1,0 +1,87 @@
+#!/bin/sh
+
+# HtContent
+#
+#     Determine a file's MIME type from its contents.
+#
+# 
+
+# Part of the ht://Dig package   <http://www.htdig.org/>
+# Copyright (c) 2003 The ht://Dig Group
+# For copyright details, see the file COPYING in your distribution
+# or the GNU Public License version 2 or later
+# <http://www.gnu.org/copyleft/gpl.html>
+
+# $Id: HtFileType,v 1.5 2004/06/11 15:55:16 grdetil Exp $
+
+if file -v > /dev/null; then
+    have_modern_file=true
+else
+    have_modern_file=false
+fi
+
+tmpfile=`mktemp /tmp/HtFileType.XXXXXX` || exit 1
+magic_file=@CONFIG_DIR@/HtFileType-magic.mime
+#magic_file=${0}-magic.mime
+
+# Go through each specified file.
+# Can't say 'for input in "$*"; do'  as that breaks up names containing spaces
+while [ $# -gt 0 ]; do
+  input="$1"; shift;
+
+  #echo -n $input '	'
+
+  # Classify based on start of file.  Strip leading whitespace and
+  # convert broken "<!" style comments to "<!--".
+  # (If available, use a fixed magic file, which is faster...)
+  # From the output, strip path name and comments like ', with very long lines'
+
+  if $have_modern_file; then
+    output=`file -i -b -m $magic_file "$input" 2>/dev/null | sed 's/[,;].*//'`
+  else
+      # old file(1) command can't strip leading whitespace, or accept -i option
+    head -100 "$input" 2> /dev/null | tr '\012\015' ' ' |
+                       sed -e's/^ *//' -e's/ *<! /<!--/' > $tmpfile
+    output=`file -m $magic_file $tmpfile 2>/dev/null | sed -e 's/.*:[ 	]*//' -e's/[,;].*//'`
+    /bin/rm -f $tmpfile
+  fi
+
+  case $output in
+	# 'file' calls most human-readable files "text", so check what type
+    *text)  case $output in
+	    *HTML* ) type=text/html;;
+	    *SGML* ) type=text/sgml;;
+	    *XML*  ) type=text/xml;;
+
+	    # ignore most source code
+	    *script* | *program* | *command* ) type=application/x-unknown;;
+	    *pre-processor*|*"'diff' output"*) type=application/x-unknown;;
+
+	    # assume all other text is plain
+	    # (Includes outputs "English t.", "ASCII t.", "international t.")
+	    *) type=text/plain;;
+	    esac;;
+
+	# Our magic file already outputs MIME types, so don't change them
+    */* ) type=$output;;
+
+        # Other recognised types
+    *postscript* | *PostScript* ) type=application/postscript;;
+    *PDF* | *acrobat*   ) type=application/pdf;;
+
+        # otherwise give up
+    *) type=application/x-unknown;;
+  esac
+
+  # Catch HTML documents, which are special cases of SGML and XML
+  case $type in
+    text/xml | text/sgml )
+      if head -100 "$input"| egrep -i '<html|<head|<title|< *a *href *='>/dev/null
+      then
+        echo text/html
+      else
+        echo $type
+      fi;;
+    * ) echo $type
+  esac
+done
