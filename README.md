@@ -5,6 +5,9 @@
 I may work on the project from time to time. The original developers have
 abandoned it.
 
+Any one interested in the project can join the
+[chat room](https://join.slack.com/t/htdig/shared_invite/enQtMjY3NDU1MjMwODk3LTdmM2I2OWI5NWI4MzU4Y2JmMjk2MzAxNDYzM2IzZjJmMGE2MDZmMWMxNDY3MjAwOGFjMmE1YjM2MmM4MzVkNzk)
+
 I'm leaving the original README below unaltered.
 
 ```
